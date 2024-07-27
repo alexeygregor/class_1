@@ -1,159 +1,247 @@
-#include <map>
+﻿#include <vector>
 #include <string>
 #include <iostream>
 using namespace std;
 
 class PhoneBook
 {
-  string phone, name;
-  map<string, string> phonebook;
-  map<string, string> phonebooks;
-  map<string, string>::iterator it;
-  map<string, string>::iterator itf;
+  string name;
+  string phone;
 
 public:
 
-  bool valid (string phone)
+  vector <string> contact;
+
+  string setName(string n)
+  {
+    name = n;
+    return name;
+  }
+
+  string getName()
+  {
+    return name;
+  }
+
+  string setPhone(string p)
+  {
+    phone = p;
+    return phone;
+  }
+
+  string getPhone()
+  {
+    return phone;
+  }
+
+  void contacts()
+  {
+    contact.push_back(getName());
+    contact.push_back(getPhone());
+  }
+};
+
+
+class Contact
+{
+  bool find = false;
+  string name, phone, message, input, buf;
+
+public:
+
+  bool valid(string phone)
   {
     bool check = true;
     double phone_num = 0;
-    if (phone.length() != 10)
-    { cerr << "Input error: " << "incorrect phone" << endl; check = false; }
+
+    if (phone.length() != 12)
+    {
+      cerr << "Input error " << endl; check = false;
+    }
+    else if (phone.substr(0, 2) != "+7")
+    {
+      cerr << "Input error " << endl; check = false;
+    }
     else
     {
       try
-      { phone_num = stod(phone); }
-      catch (const exception& e)
-      { cerr << "Input error: incorrect phone" << endl; check = false; }
+      {
+        phone_num = stod(phone.substr(1, 11));
+      }
+      catch (const exception&)
+      {
+        cerr << "Input error" << endl; check = false;
+      }
     }
     return check;
   }
 
-  void add()
+  void add(PhoneBook* pb)
   {
-    cout << "Insert phone number: +7 ";
-    getline(cin, phone);
+    cout << "Insert Phone number: ";
+    getline (cin, phone);
 
     if (valid(phone))
     {
-      it = phonebook.find(phone);
-      if (it->first == phone)
-      { cerr << "Phone is already reserved" << endl; }
-
       cout << "Insert Name: ";
       getline(cin, name);
-      itf = phonebooks.find(name);
-      if (itf->first == name)
-      { cerr << "Name is already reserved" << endl; }
 
-      phonebook.insert(pair<string, string> (phone, name));
-      phonebooks.insert(pair<string, string> (name, phone));
+      pb->setName(name);
+      pb->setPhone(phone);
+      pb->contacts();
     }
   }
 
-  void show()
+  void call(PhoneBook* pb)
   {
-    for (it = phonebook.begin(); it != phonebook.end(); ++it)
-      cout << "#" << it->first << " " << it->second << endl;
-  }
-
-  void call(string input)
-  {
-    int cnt = 0;
-    if (input == "+7")
-    {
-      getline(cin, phone);
-      if (valid (phone))
-      {
-        it = phonebook.find(phone);
-        if (it->first == phone)
-          cout << "CALL +7 " << it->first << " " << it->second << endl;
-        else cout << "CALL +7 " << phone << endl;
-      }
-    }
-    else
-    {
-      name = input;
-      itf = phonebooks.find(name);
-      if (itf->first == name)
-        cout << "CALL +7 " << itf->second << " " << itf->first << endl;
-      else
-        cerr << "Not found" << endl;
-    }
-  }
-};
-
-class Phone
-{
-  string input, message;
-
-public:
-
-  void add(PhoneBook* phonebook)
-  {
-    phonebook->add();
-  }
-
-  void show(PhoneBook* phonebook)
-  {
-    phonebook->show();
-  }
-
-  void call(PhoneBook* phonebook)
-  {
-    getline (cin, input);
-    phonebook->call(input);
-  }
-
-  void sms(PhoneBook* phonebook)
-  {
-    cout << "Input number: +7 ";
+    cout << "Input name or number: ";
     getline(cin, input);
 
-    if (phonebook->valid(input))
+    for (int i = 0; i < pb->contact.size(); ++i)
     {
-      cout << "@" << endl;
-      getline(cin, message);
-      cout << "@" << endl;
-      cout << "Message sent" << endl;
+      if (input == pb->contact[i])
+      {
+        if (i % 2 == 0)
+        {
+          name = input;
+          cout << "#CALL  " << name << endl;
+          find = true;
+          break;
+        }
+        else if (i % 2 != 0)
+        {
+          phone = input;
+          cout << "#CALL  " << phone << endl;
+          find = true;
+          break;
+        }
+      }
+    }
+    if (!find)
+    {
+      phone = input;
+      if (valid(phone))
+      {
+        cout << "#CALL  " << phone << endl;
+      }
+    }
+    find = false;
+  }
+
+  void sms(PhoneBook* pb)
+  {
+    cout << "@MESSAGE" << endl;
+    getline(cin, message);
+
+    int q = 0;
+    while (q != -1)
+    {
+      cout << "Input name or number: ";
+      getline(cin, input);
+
+      if (input == "-1")
+      {
+        cout << "@Abort message" << endl;
+        q = -1;
+        continue;
+      }
+      for (int i = 0; i < pb->contact.size(); ++i)
+      {
+        if (input == pb->contact[i])
+        {
+          if (i % 2 == 0)
+          {
+            name = input;
+            cout << "@Message sent to " << name << endl;
+            find = true;
+            q = -1;
+            break;
+          }
+          else if (i % 2 != 0)
+          {
+            phone = input;
+            cout << "@Message sent to " << phone << endl;
+            find = true;
+            q = -1;
+            break;
+          }
+        }
+      }
+      if (!find)
+      {
+        phone = input;
+        if (valid(phone))
+        {
+          cout << "@Message sent to " << phone << endl;
+          q = -1;
+        }
+      }
+      find = false;
     }
   }
 
-  int exit(int q)
+  void show(PhoneBook* pb)
+  {
+    for (int i = 0; i < pb->contact.size(); ++i)
+    {
+      buf = pb->contact[i];
+      if (i % 2 == 0)
+      {
+        while (buf.length() <= 20)
+        {
+          buf += " ";
+        }
+      }
+      cout << buf;
+      if (i % 2 != 0)
+      {
+        cout << endl;
+      }
+    }
+  }
+
+  int exit (int q)
   {
     q = -1;
     return q;
   }
 };
 
+
 int main()
 {
   int q = 0;
   string command;
+  Contact* contact = new Contact;
+  PhoneBook* pb = new PhoneBook;
 
-  Phone* phone = new Phone;
-  PhoneBook* phonebook = new PhoneBook;
-
-  while(q != -1)
+  while (q != -1)
   {
     cout << "\nEnter command: ";
     getline(cin, command);
 
     if (command == "exit")
-      q = phone->exit(q);
-
+    {
+      contact->exit(q);
+    }
     if (command == "add")
-      phone->add(phonebook);
-
+    {
+      contact->add(pb);
+    }
     if (command == "call")
-      phone->call(phonebook);
-
+    {
+      contact->call(pb);
+    }
     if (command == "show")
-      phone->show(phonebook);
-
+    {
+      contact->show(pb);
+    }
     if (command == "sms")
-      phone->sms(phonebook);
+    {
+      contact->sms(pb);
+    }
   }
-  delete phone;
-  delete phonebook;
+
+  delete contact;
+  delete pb;
 }
