@@ -27,8 +27,9 @@ class Contact
   bool check = true, find = false;
   string name, phone, message, input, buf;
 
-public:
+  bool valid(string phone);
 
+public:
 
   void add(PhoneBook &pb);
 
@@ -39,8 +40,6 @@ public:
   void sms(PhoneBook &pb);
 
   void show(PhoneBook &pb);
-
-  bool valid(string phone);
 
   int exit(int q);
 };
