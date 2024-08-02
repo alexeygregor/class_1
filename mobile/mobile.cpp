@@ -26,6 +26,31 @@ string PhoneBook::getPhone()
 }
 
 
+bool Contact::valid(string phone)
+{
+  check = true;
+  if (phone.length() != 12)
+  {
+    cerr << "Input error" << endl; check = false;
+  }
+  else if (phone.substr(0, 2) != "+7")
+  {
+    cerr << "Input error" << endl; check = false;
+  }
+  else
+  {
+    try
+    {
+      phone_num = stod(phone.substr(1, 11));
+    }
+    catch (const exception&)
+    {
+      cerr << "Input error" << endl; check = false;
+    }
+  }
+  return check;
+}
+
 void Contact::add(PhoneBook &pb)
 {
   insert(pb);
@@ -168,31 +193,6 @@ void Contact::show(PhoneBook &pb)
     buf = pb.getPhone();
     cout << buf << endl;
   }
-}
-
-bool Contact::valid(string phone)
-{
-  check = true;
-  if (phone.length() != 12)
-  {
-    cerr << "Input error" << endl; check = false;
-  }
-  else if (phone.substr(0, 2) != "+7")
-  {
-    cerr << "Input error" << endl; check = false;
-  }
-  else
-  {
-    try
-    {
-      phone_num = stod(phone.substr(1, 11));
-    }
-    catch (const exception&)
-    {
-      cerr << "Input error" << endl; check = false;
-    }
-  }
-  return check;
 }
 
 int Contact::exit(int q)
